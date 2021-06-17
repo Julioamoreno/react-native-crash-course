@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 
 import WeatherInfo from './components/WeatherInfo';
+import UnitsPicker from './components/UnitsPicker';
 
 export default function App() {
 	const [errorMsg, setErrorMsg] = useState(null);
@@ -32,6 +33,8 @@ export default function App() {
 
 	useEffect(() => {
 		if (!latitude || !longitude) return;
+		setCurrentWeather(null);
+		setErrorMsg(null);
 		(async () => {
 			weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
 			const response = await fetch(weatherUrl);
@@ -43,26 +46,33 @@ export default function App() {
 				setErrorMsg(result.message);
 			}
 		})();
-	}, [latitude, longitude]);
+	}, [latitude, longitude, unitsSystem]);
 
 	if (!!currentWeather) {
-		const {
-			main: { temp },
-		} = currentWeather;
 		return (
 			<View style={styles.container}>
 				<StatusBar style='auto' />
 				<View style={styles.main}>
+					<UnitsPicker
+						unitsSystem={unitsSystem}
+						setUnitsSystem={setUnitsSystem}
+					/>
 					<WeatherInfo currentWeather={currentWeather} />
 				</View>
+			</View>
+		);
+	} else if (errorMsg) {
+		return (
+			<View style={styles.container}>
+				{errorMsg && <Text>{`Error: ${errorMsg}`}</Text>}
 				<Text>Open up App.js to start working on your app!</Text>
+				<StatusBar style='auto' />
 			</View>
 		);
 	} else {
 		return (
 			<View style={styles.container}>
-				{errorMsg && <Text>{`Error: ${errorMsg}`}</Text>}
-				<Text>Open up App.js to start working on your app!</Text>
+				<ActivityIndicator />
 				<StatusBar style='auto' />
 			</View>
 		);
