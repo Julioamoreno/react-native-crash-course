@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import * as Location from 'expo-location';
 
+import WeatherInfo from './components/WeatherInfo';
+
 export default function App() {
 	const [errorMsg, setErrorMsg] = useState(null);
 	const [latitude, setLatitude] = useState(null);
@@ -49,10 +51,11 @@ export default function App() {
 		} = currentWeather;
 		return (
 			<View style={styles.container}>
-				{errorMsg && <Text>{`Error: ${errorMsg}`}</Text>}
-				<Text>{`${temp}º`}</Text>
-				<Text>Open up App.js to start working on your app!</Text>
 				<StatusBar style='auto' />
+				<View style={styles.main}>
+					<WeatherInfo currentWeather={currentWeather} />
+				</View>
+				<Text>Open up App.js to start working on your app!</Text>
 			</View>
 		);
 	} else {
@@ -72,5 +75,9 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
 		alignItems: 'center',
 		justifyContent: 'center',
+	},
+	main: {
+		justifyContent: 'center',
+		flex: 1,
 	},
 });
