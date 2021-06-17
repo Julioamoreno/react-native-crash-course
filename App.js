@@ -18,8 +18,6 @@ export default function App() {
 	const [unitsSystem, setUnitsSystem] = useState('metric');
 
 	useEffect(() => {
-		setCurrentWeather(null);
-		setErrorMsg(null);
 		load();
 	}, []);
 
@@ -45,6 +43,8 @@ export default function App() {
 	}, [latitude, longitude, unitsSystem]);
 
 	const load = async () => {
+		setCurrentWeather(null);
+		setErrorMsg(null);
 		try {
 			let { status } = await Location.requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
