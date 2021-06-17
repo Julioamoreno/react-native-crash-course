@@ -3,8 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 
+import { colors } from './utils';
+
 import WeatherInfo from './components/WeatherInfo';
 import UnitsPicker from './components/UnitsPicker';
+import ReloadIcon from './components/ReloadIcon';
 
 export default function App() {
 	const [errorMsg, setErrorMsg] = useState(null);
@@ -14,21 +17,9 @@ export default function App() {
 	const [unitsSystem, setUnitsSystem] = useState('metric');
 
 	useEffect(() => {
-		(async () => {
-			try {
-				let { status } = await Location.requestForegroundPermissionsAsync();
-				if (status !== 'granted') {
-					setErrorMsg('Permission to access location was denied');
-					return;
-				}
-
-				let location = await Location.getCurrentPositionAsync({});
-				setLatitude(location.coords.latitude);
-				setLongitude(location.coords.longitude);
-			} catch (err) {
-				setErrorMsg(err.message);
-			}
-		})();
+		setCurrentWeather(null);
+		setErrorMsg(null);
+		load();
 	}, []);
 
 	useEffect(() => {
@@ -48,6 +39,22 @@ export default function App() {
 		})();
 	}, [latitude, longitude, unitsSystem]);
 
+	const load = async () => {
+		try {
+			let { status } = await Location.requestForegroundPermissionsAsync();
+			if (status !== 'granted') {
+				setErrorMsg('Permission to access location was denied');
+				return;
+			}
+
+			let location = await Location.getCurrentPositionAsync({});
+			setLatitude(location.coords.latitude);
+			setLongitude(location.coords.longitude);
+		} catch (err) {
+			setErrorMsg(err.message);
+		}
+	};
+
 	if (!!currentWeather) {
 		return (
 			<View style={styles.container}>
@@ -57,6 +64,7 @@ export default function App() {
 						unitsSystem={unitsSystem}
 						setUnitsSystem={setUnitsSystem}
 					/>
+					<ReloadIcon load={load} />
 					<WeatherInfo currentWeather={currentWeather} />
 				</View>
 			</View>
@@ -72,7 +80,7 @@ export default function App() {
 	} else {
 		return (
 			<View style={styles.container}>
-				<ActivityIndicator />
+				<ActivityIndicator size='large' color={colors.PRIMARY_COLOR} />
 				<StatusBar style='auto' />
 			</View>
 		);
@@ -83,7 +91,6 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: '#fff',
-		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	main: {
