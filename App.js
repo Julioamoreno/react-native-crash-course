@@ -8,6 +8,7 @@ import { colors } from './utils';
 import WeatherInfo from './components/WeatherInfo';
 import UnitsPicker from './components/UnitsPicker';
 import ReloadIcon from './components/ReloadIcon';
+import WeatherDetails from './components/WeatherDetails';
 
 export default function App() {
 	const [errorMsg, setErrorMsg] = useState(null);
@@ -27,14 +28,18 @@ export default function App() {
 		setCurrentWeather(null);
 		setErrorMsg(null);
 		(async () => {
-			weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
-			const response = await fetch(weatherUrl);
+			try {
+				weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
+				const response = await fetch(weatherUrl);
 
-			const result = await response.json();
-			if (response.status === 200) {
-				setCurrentWeather(result);
-			} else {
-				setErrorMsg(result.message);
+				const result = await response.json();
+				if (response.status === 200) {
+					setCurrentWeather(result);
+				} else {
+					setErrorMsg(result.message);
+				}
+			} catch (err) {
+				setErrorMsg(err.message);
 			}
 		})();
 	}, [latitude, longitude, unitsSystem]);
@@ -67,13 +72,17 @@ export default function App() {
 					<ReloadIcon load={load} />
 					<WeatherInfo currentWeather={currentWeather} />
 				</View>
+				<WeatherDetails
+					currentWeather={currentWeather}
+					unitsSystem={unitsSystem}
+				/>
 			</View>
 		);
 	} else if (errorMsg) {
 		return (
 			<View style={styles.container}>
-				{errorMsg && <Text>{`Error: ${errorMsg}`}</Text>}
-				<Text>Open up App.js to start working on your app!</Text>
+				<ReloadIcon load={load} />
+				<Text style={{ textAlign: 'center' }}>{`Error: ${errorMsg}`}</Text>
 				<StatusBar style='auto' />
 			</View>
 		);
