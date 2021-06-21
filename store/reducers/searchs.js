@@ -7,6 +7,9 @@ const previousSearchesSlice = createSlice({
 	initialState: searchesInitialState,
 	reducers: {
 		setWeather(state, action) {
+			if (state.length > 2) {
+				state.pop();
+			}
 			state.unshift({
 				latitude: action.payload.geometry.lat,
 				longitude: action.payload.geometry.lng,
