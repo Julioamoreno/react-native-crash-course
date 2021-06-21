@@ -22,9 +22,11 @@ export default function Home({ route }) {
 	const [unitsSystem, setUnitsSystem] = useState('metric');
 
 	useEffect(() => {
-		if (route) {
+		if (!!route.params) {
 			setLatitude(route.params.search.latitude);
 			setLongitude(route.params.search.longitude);
+			requestAPI();
+			return;
 		}
 		load();
 	}, []);
@@ -33,22 +35,24 @@ export default function Home({ route }) {
 		if (!latitude || !longitude) return;
 		setCurrentWeather(null);
 		setErrorMsg(null);
-		(async () => {
-			try {
-				const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
-				const response = await fetch(weatherUrl);
-
-				const result = await response.json();
-				if (response.status === 200) {
-					setCurrentWeather(result);
-				} else {
-					setErrorMsg(result.message);
-				}
-			} catch (err) {
-				setErrorMsg(err.message);
-			}
-		})();
+		requestAPI();
 	}, [latitude, longitude, unitsSystem]);
+
+	const requestAPI = async () => {
+		try {
+			const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
+			const response = await fetch(weatherUrl);
+
+			const result = await response.json();
+			if (response.status === 200) {
+				setCurrentWeather(result);
+			} else {
+				setErrorMsg(result.message);
+			}
+		} catch (err) {
+			setErrorMsg(err.message);
+		}
+	};
 
 	const load = async () => {
 		setCurrentWeather(null);

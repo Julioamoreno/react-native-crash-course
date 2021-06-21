@@ -57,7 +57,10 @@ export default function FormSubmitCity({ navigation }) {
 				<TouchableOpacity style={styles.submitButton} onPress={submitHandle}>
 					<Text style={styles.textButton}>Submit</Text>
 				</TouchableOpacity>
-				<TouchableOpacity style={styles.submitButton}>
+				<TouchableOpacity
+					style={styles.submitButton}
+					onPress={() => navigation.push('Home')}
+				>
 					<Text style={styles.textButton}>
 						<MaterialIcons name='my-location' size={24} color='white' />
 					</Text>

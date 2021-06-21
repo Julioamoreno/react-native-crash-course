@@ -4,7 +4,6 @@ import { AntDesign } from '@expo/vector-icons';
 
 import { useSelector } from 'react-redux';
 
-import state from '../store';
 import { colors } from '../utils';
 const { PRIMARY_COLOR, BORDER_COLOR } = colors;
 
@@ -24,7 +23,9 @@ export default function PreviousSearches({ navigation }) {
 								<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
 									{search.location}
 								</Text>
-								<Text style={styles.cardText}>RJ, Brazil</Text>
+								<Text style={styles.cardText}>
+									{search.city}, {search.country}
+								</Text>
 							</View>
 							<AntDesign
 								name='arrowright'
