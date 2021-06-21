@@ -7,6 +7,7 @@ import {
 	TouchableOpacity,
 	Alert,
 } from 'react-native';
+import * as Location from 'expo-location';
 
 import { useDispatch } from 'react-redux';
 import { searchsActions } from '../store';
@@ -20,7 +21,28 @@ const apiLink =
 
 export default function FormSubmitCity({ navigation }) {
 	const [city, setCity] = useState('');
+	const [latitude, setLatitude] = useState(null);
+	const [longitude, setLongitude] = useState(null);
 	const dispatch = useDispatch();
+
+	const handleReturnAPI = async (response) => {
+		console.log(response);
+
+		if (response.results.length === 0) {
+			return Alert.alert('Local não encontrado');
+		}
+		const components = response.results[0].components;
+		const type = !!components.city ? 'city' : 'town';
+		dispatch(
+			searchsActions.setWeather({
+				geometry: response.results[0].geometry,
+				location: components[type],
+				city: components.state_code,
+				country: components.country,
+			})
+		);
+	};
+
 	const submitHandle = async () => {
 		const regex = /[ ]/g;
 		const cityFormated = city.replace(regex, '+').toLowerCase();
@@ -29,21 +51,27 @@ export default function FormSubmitCity({ navigation }) {
 			const linkLocation = apiLink + cityFormated;
 			const response = await fetch(linkLocation);
 			const responseFormated = await response.json();
-			if (response.ok) {
-				if (responseFormated.results.length === 0) {
-					return Alert.alert('Local não encontrado');
-				}
-				const components = responseFormated.results[0].components;
-				const type = !!components.city ? 'city' : 'town';
-				dispatch(
-					searchsActions.setWeather({
-						geometry: responseFormated.results[0].geometry,
-						location: components[type],
-						city: components.state_code,
-						country: components.country,
-					})
-				);
+			if (response.ok) return handleReturnAPI(responseFormated);
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	const locationHandle = async () => {
+		try {
+			let { status } = await Location.requestForegroundPermissionsAsync();
+			if (status !== 'granted') {
+				console.log('Permission to access location was denied');
+				return;
 			}
+
+			let location = await Location.getCurrentPositionAsync({});
+			setLatitude(location.coords.latitude);
+			setLongitude(location.coords.longitude);
+
+			const response = await fetch(`${apiLink}${latitude}+${longitude}`);
+			const responseFormated = await response.json();
+			if (response.ok) return handleReturnAPI(responseFormated);
 		} catch (err) {
 			console.log(err);
 		}
@@ -57,10 +85,7 @@ export default function FormSubmitCity({ navigation }) {
 				<TouchableOpacity style={styles.submitButton} onPress={submitHandle}>
 					<Text style={styles.textButton}>Submit</Text>
 				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.submitButton}
-					onPress={() => navigation.push('Home')}
-				>
+				<TouchableOpacity style={styles.submitButton} onPress={locationHandle}>
 					<Text style={styles.textButton}>
 						<MaterialIcons name='my-location' size={24} color='white' />
 					</Text>
