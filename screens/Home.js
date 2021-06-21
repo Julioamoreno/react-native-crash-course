@@ -2,10 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
-import store, { currentWeatherActions } from '../store';
 import * as Location from 'expo-location';
-
-import { useDispatch, useSelector } from 'react-redux';
 
 import { colors } from '../utils';
 

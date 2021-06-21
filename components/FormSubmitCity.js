@@ -26,15 +26,13 @@ export default function FormSubmitCity({ navigation }) {
 	const dispatch = useDispatch();
 
 	const handleReturnAPI = async (response) => {
-		console.log(response);
-
 		if (response.results.length === 0) {
 			return Alert.alert('Local não encontrado');
 		}
 		const components = response.results[0].components;
 		const type = !!components.city ? 'city' : 'town';
 		dispatch(
-			searchsActions.setWeather({
+			searchsActions.setSearch({
 				geometry: response.results[0].geometry,
 				location: components[type],
 				city: components.state_code,

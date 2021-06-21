@@ -6,7 +6,7 @@ const previousSearchesSlice = createSlice({
 	name: 'currentWeather',
 	initialState: searchesInitialState,
 	reducers: {
-		setWeather(state, action) {
+		setSearch(state, action) {
 			if (state.length > 2) {
 				state.pop();
 			}
