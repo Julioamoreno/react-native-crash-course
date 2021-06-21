@@ -5,7 +5,11 @@ import {
 	TextInput,
 	StyleSheet,
 	TouchableOpacity,
+	Alert,
 } from 'react-native';
+
+import { useDispatch } from 'react-redux';
+import { searchsActions } from '../store';
 
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -14,9 +18,9 @@ const { PRIMARY_COLOR, BORDER_COLOR } = colors;
 const apiLink =
 	'https://api.opencagedata.com/geocode/v1/json?key=2e413bb17c824fa1a6ae997329d8dcdc&q=';
 
-export default function FormSubmitCity() {
+export default function FormSubmitCity({ navigation }) {
 	const [city, setCity] = useState('');
-
+	const dispatch = useDispatch();
 	const submitHandle = async () => {
 		const regex = /[ ]/g;
 		const cityFormated = city.replace(regex, '+').toLowerCase();
@@ -27,18 +31,21 @@ export default function FormSubmitCity() {
 			const responseFormated = await response.json();
 			if (response.ok) {
 				if (responseFormated.results.length === 0) {
-					console.log('entrou');
-					return alert('Local não encontrado');
+					return Alert.alert('Local não encontrado');
 				}
 				const components = responseFormated.results[0].components;
-				const type = components['_type'];
-				console.log(responseFormated.results[0].geometry);
-				// console.log(components);
-				console.log(components[type]);
-				console.log(`${components.state_code}, ${components.country}`);
+				const type = !!components.city ? 'city' : 'town';
+				dispatch(
+					searchsActions.setWeather({
+						geometry: responseFormated.results[0].geometry,
+						location: components[type],
+						city: components.state_code,
+						country: components.country,
+					})
+				);
 			}
 		} catch (err) {
-			alert(err);
+			console.log(err);
 		}
 	};
 

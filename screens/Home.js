@@ -14,7 +14,7 @@ import UnitsPicker from '../components/UnitsPicker';
 import ReloadIcon from '../components/ReloadIcon';
 import WeatherDetails from '../components/WeatherDetails';
 
-export default function Home() {
+export default function Home({ route }) {
 	const [errorMsg, setErrorMsg] = useState(null);
 	const [latitude, setLatitude] = useState(null);
 	const [longitude, setLongitude] = useState(null);
@@ -22,6 +22,10 @@ export default function Home() {
 	const [unitsSystem, setUnitsSystem] = useState('metric');
 
 	useEffect(() => {
+		if (route) {
+			setLatitude(route.params.search.latitude);
+			setLongitude(route.params.search.longitude);
+		}
 		load();
 	}, []);
 
@@ -31,7 +35,7 @@ export default function Home() {
 		setErrorMsg(null);
 		(async () => {
 			try {
-				weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
+				const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${unitsSystem}&appid=${process.env.WEATHER_API_KEY}`;
 				const response = await fetch(weatherUrl);
 
 				const result = await response.json();

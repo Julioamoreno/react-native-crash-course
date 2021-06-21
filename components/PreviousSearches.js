@@ -2,39 +2,44 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
+import { useSelector } from 'react-redux';
+
+import state from '../store';
 import { colors } from '../utils';
 const { PRIMARY_COLOR, BORDER_COLOR } = colors;
 
-export default function PreviousSearches() {
+export default function PreviousSearches({ navigation }) {
+	const searchs = useSelector((state) => state.searchs);
+
 	return (
 		<View style={styles.main}>
-			<Text style={styles.title}>Previous Searches</Text>
-			<View style={styles.card}>
-				<View style={styles.cardContent}>
-					<View style={styles.cardColumn}>
-						<View>
-							<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
-								Rio de Janeiro
-							</Text>
-							<Text style={styles.cardText}>RJ, Brazil</Text>
+			{searchs.length > 0 && (
+				<Text style={styles.title}>Previous Searches</Text>
+			)}
+			{searchs.map((search, idx) => (
+				<View style={styles.card} key={idx}>
+					<View style={styles.cardContent}>
+						<View style={styles.cardColumn}>
+							<View>
+								<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
+									{search.location}
+								</Text>
+								<Text style={styles.cardText}>RJ, Brazil</Text>
+							</View>
+							<AntDesign
+								name='arrowright'
+								size={24}
+								color={PRIMARY_COLOR}
+								onPress={() =>
+									navigation.push('Home', {
+										search,
+									})
+								}
+							/>
 						</View>
-						<AntDesign name='arrowright' size={24} color={PRIMARY_COLOR} />
 					</View>
 				</View>
-			</View>
-			<View style={styles.card}>
-				<View style={styles.cardContent}>
-					<View style={styles.cardColumn}>
-						<View>
-							<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
-								Santo Antônio de Pádua
-							</Text>
-							<Text style={styles.cardText}>RJ, Brazil</Text>
-						</View>
-						<AntDesign name='arrowright' size={24} color={PRIMARY_COLOR} />
-					</View>
-				</View>
-			</View>
+			))}
 		</View>
 	);
 }

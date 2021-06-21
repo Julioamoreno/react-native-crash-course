@@ -4,11 +4,11 @@ import { View, Text } from 'react-native';
 import FormSubmitCity from '../components/FormSubmitCity';
 import PreviousSearches from '../components/PreviousSearches';
 
-export default function SearchScreen() {
+export default function SearchScreen({ navigation }) {
 	return (
 		<View>
-			<FormSubmitCity />
-			<PreviousSearches />
+			<FormSubmitCity navigation={navigation} />
+			<PreviousSearches navigation={navigation} />
 		</View>
 	);
 }
