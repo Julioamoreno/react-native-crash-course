@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	View,
 	Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { searchsActions } from '../store';
 
 import { MaterialIcons } from '@expo/vector-icons';
@@ -24,6 +24,25 @@ export default function FormSubmitCity({ navigation }) {
 	const [latitude, setLatitude] = useState(null);
 	const [longitude, setLongitude] = useState(null);
 	const dispatch = useDispatch();
+	const search = useSelector((state) => state.searchs);
+
+	useEffect(() => {
+		(async () => {
+			try {
+				let { status } = await Location.requestForegroundPermissionsAsync();
+				if (status !== 'granted') {
+					console.log('Permission to access location was denied');
+					return;
+				}
+
+				let location = await Location.getCurrentPositionAsync({});
+				setLatitude(location.coords.latitude);
+				setLongitude(location.coords.longitude);
+			} catch (err) {
+				console.log(err);
+			}
+		})();
+	}, []);
 
 	const handleReturnAPI = async (response) => {
 		if (response.results.length === 0) {
@@ -39,6 +58,16 @@ export default function FormSubmitCity({ navigation }) {
 				country: components.country,
 			})
 		);
+		const search = {
+			latitude: response.results[0].geometry.lat,
+			longitude: response.results[0].geometry.lng,
+			location: components[type],
+			city: components.state_code,
+			country: components.country,
+		};
+
+		console.log(search);
+		navigation.push('Home', { search });
 	};
 
 	const submitHandle = async () => {
@@ -57,15 +86,17 @@ export default function FormSubmitCity({ navigation }) {
 
 	const locationHandle = async () => {
 		try {
-			let { status } = await Location.requestForegroundPermissionsAsync();
-			if (status !== 'granted') {
-				console.log('Permission to access location was denied');
-				return;
-			}
+			if (!latitude || !longitude) {
+				let { status } = await Location.requestForegroundPermissionsAsync();
+				if (status !== 'granted') {
+					console.log('Permission to access location was denied');
+					return;
+				}
 
-			let location = await Location.getCurrentPositionAsync({});
-			setLatitude(location.coords.latitude);
-			setLongitude(location.coords.longitude);
+				let location = await Location.getCurrentPositionAsync({});
+				setLatitude(location.coords.latitude);
+				setLongitude(location.coords.longitude);
+			}
 
 			const response = await fetch(`${apiLink}${latitude}+${longitude}`);
 			const responseFormated = await response.json();
