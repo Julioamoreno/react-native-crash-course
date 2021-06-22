@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 import { useSelector } from 'react-redux';
@@ -15,32 +15,34 @@ export default function PreviousSearches({ navigation }) {
 			{searchs.length > 0 && (
 				<Text style={styles.title}>Previous Searches</Text>
 			)}
-			{searchs.map((search, idx) => (
-				<View style={styles.card} key={idx}>
-					<View style={styles.cardContent}>
-						<View style={styles.cardColumn}>
-							<View>
-								<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
-									{search.location}
-								</Text>
-								<Text style={styles.cardText}>
-									{search.city}, {search.country}
-								</Text>
+			<ScrollView>
+				{searchs.map((search, idx) => (
+					<View style={styles.card} key={idx}>
+						<View style={styles.cardContent}>
+							<View style={styles.cardColumn}>
+								<View>
+									<Text style={{ ...styles.cardText, fontWeight: 'bold' }}>
+										{search.location}
+									</Text>
+									<Text style={styles.cardText}>
+										{search.city}, {search.country}
+									</Text>
+								</View>
+								<AntDesign
+									name='arrowright'
+									size={24}
+									color={PRIMARY_COLOR}
+									onPress={() =>
+										navigation.push('Home', {
+											search,
+										})
+									}
+								/>
 							</View>
-							<AntDesign
-								name='arrowright'
-								size={24}
-								color={PRIMARY_COLOR}
-								onPress={() =>
-									navigation.push('Home', {
-										search,
-									})
-								}
-							/>
 						</View>
 					</View>
-				</View>
-			))}
+				))}
+			</ScrollView>
 		</View>
 	);
 }
