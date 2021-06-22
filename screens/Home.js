@@ -19,10 +19,11 @@ export default function Home({ route }) {
 	const [unitsSystem, setUnitsSystem] = useState('metric');
 
 	useEffect(() => {
+		setCurrentWeather(null);
+		setErrorMsg(null);
 		if (!!route.params) {
 			setLatitude(route.params.search.latitude);
 			setLongitude(route.params.search.longitude);
-			requestAPI();
 			return;
 		}
 		load();
@@ -30,8 +31,6 @@ export default function Home({ route }) {
 
 	useEffect(() => {
 		if (!latitude || !longitude) return;
-		setCurrentWeather(null);
-		setErrorMsg(null);
 		requestAPI();
 	}, [latitude, longitude, unitsSystem]);
 

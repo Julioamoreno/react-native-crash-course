@@ -6,6 +6,7 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	Alert,
+	ActivityIndicator,
 } from 'react-native';
 import * as Location from 'expo-location';
 
@@ -23,6 +24,8 @@ export default function FormSubmitCity({ navigation }) {
 	const [city, setCity] = useState('');
 	const [latitude, setLatitude] = useState(null);
 	const [longitude, setLongitude] = useState(null);
+	const [loadingSubmit, setLoadingSubmit] = useState(false);
+	const [loadingLocation, setLoadingLocation] = useState(false);
 	const dispatch = useDispatch();
 	const search = useSelector((state) => state.searchs);
 
@@ -45,6 +48,9 @@ export default function FormSubmitCity({ navigation }) {
 	}, []);
 
 	const handleReturnAPI = async (response) => {
+		setLoadingSubmit(false);
+		setLoadingLocation(false);
+		setCity('');
 		if (response.results.length === 0) {
 			return Alert.alert('Local não encontrado');
 		}
@@ -73,6 +79,7 @@ export default function FormSubmitCity({ navigation }) {
 	const submitHandle = async () => {
 		const regex = /[ ]/g;
 		const cityFormated = city.replace(regex, '+').toLowerCase();
+		setLoadingSubmit(true);
 
 		try {
 			const linkLocation = apiLink + cityFormated;
@@ -81,10 +88,12 @@ export default function FormSubmitCity({ navigation }) {
 			if (response.ok) return handleReturnAPI(responseFormated);
 		} catch (err) {
 			console.log(err);
+			setLoadingSubmit(false);
 		}
 	};
 
 	const locationHandle = async () => {
+		setLoadingLocation(true);
 		try {
 			if (!latitude || !longitude) {
 				let { status } = await Location.requestForegroundPermissionsAsync();
@@ -103,20 +112,29 @@ export default function FormSubmitCity({ navigation }) {
 			if (response.ok) return handleReturnAPI(responseFormated);
 		} catch (err) {
 			console.log(err);
+			setLoadingLocation(false);
 		}
 	};
 
 	return (
 		<View style={styles.main}>
 			<Text style={styles.title}>Type your location here:</Text>
-			<TextInput style={styles.input} onChangeText={(text) => setCity(text)} />
+			<TextInput
+				style={styles.input}
+				value={city}
+				onChangeText={(text) => setCity(text)}
+			/>
 			<View style={styles.buttonsRow}>
 				<TouchableOpacity style={styles.submitButton} onPress={submitHandle}>
-					<Text style={styles.textButton}>Submit</Text>
+					{!loadingSubmit && <Text style={styles.textButton}>Submit</Text>}
+					{loadingSubmit && <ActivityIndicator color='white' />}
 				</TouchableOpacity>
 				<TouchableOpacity style={styles.submitButton} onPress={locationHandle}>
 					<Text style={styles.textButton}>
-						<MaterialIcons name='my-location' size={24} color='white' />
+						{!loadingLocation && (
+							<MaterialIcons name='my-location' size={24} color='white' />
+						)}
+						{loadingLocation && <ActivityIndicator color='white' />}
 					</Text>
 				</TouchableOpacity>
 			</View>
